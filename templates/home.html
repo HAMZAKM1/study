@@ -1,0 +1,795 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- ================= HERO ================= -->
+<section class="hero-section text-center mb-5 position-relative" style="background: url('{% static 'images/hero-bg.jpg' %}') center/cover no-repeat; padding: 80px 20px; color: #fff;">
+    
+    <!-- Optional: Background Overlay -->
+    <div class="overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:1;"></div>
+
+    <div class="hero-content position-relative" style="z-index:2;">
+        <h1 class="fw-bold display-5 animate__animated animate__fadeInDown">🎓 Student–Teacher Appointment System</h1>
+        <p class="text-light fs-5 animate__animated animate__fadeInUp animate__delay-1s">
+            Smart scheduling for smarter education
+        </p>
+
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg me-2 animate__animated animate__fadeInLeft animate__delay-2s">
+                Login
+            </a>
+            <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg animate__animated animate__fadeInRight animate__delay-2s">
+                Register
+            </a>
+        {% else %}
+            <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg animate__animated animate__fadeInUp animate__delay-2s">
+                Go to Dashboard →
+            </a>
+        {% endif %}
+
+        <!-- Feature Highlights -->
+        <div class="feature-highlights d-flex flex-wrap justify-content-center mt-5 gap-3 animate__animated animate__fadeInUp animate__delay-3s">
+            <div class="feature-card p-3 bg-light text-dark rounded shadow-sm">
+                <i class="bi bi-calendar-check fs-3"></i>
+                <p class="mb-0">📅 Book Appointments</p>
+            </div>
+            <div class="feature-card p-3 bg-light text-dark rounded shadow-sm">
+                <i class="bi bi-clock-history fs-3"></i>
+                <p class="mb-0">📜 Track History</p>
+            </div>
+            <div class="feature-card p-3 bg-light text-dark rounded shadow-sm">
+                <i class="bi bi-bell fs-3"></i>
+                <p class="mb-0">🔔 Get Notifications</p>
+            </div>
+            <div class="feature-card p-3 bg-light text-dark rounded shadow-sm">
+                <i class="bi bi-chat-dots fs-3"></i>
+                <p class="mb-0">💬 Contact Advisors</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Optional CSS for Hero Section -->
+<style>
+.hero-section {
+    position: relative;
+    min-height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.hero-section h1, .hero-section p {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+.feature-card {
+    width: 160px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+</style>
+
+<!-- Optional: Include Animate.css CDN for animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+
+<!-- ================= ANNOUNCEMENT ================= -->
+<section class="alert alert-info text-center mb-5">
+    📢 <strong>New Update:</strong> Teachers can now manage availability in real time!
+</section>
+
+<!-- ================= STATS ================= -->
+<section class="row text-center mb-5 g-4">
+    <!-- Registered Students -->
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100 stat-card bg-gradient-primary text-white">
+            <div class="card-body">
+                <i class="bi bi-people-fill fs-1 mb-2"></i>
+                <h2 class="counter" data-target="{{ total_students }}">0</h2>
+                <p class="text-light">Registered Students</p>
+                <div class="progress mt-2" style="height:6px;">
+                    <div class="progress-bar bg-light" role="progressbar" style="width: {{ students_percentage }}%;" aria-valuenow="{{ students_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verified Teachers -->
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100 stat-card bg-gradient-success text-white">
+            <div class="card-body">
+                <i class="bi bi-person-badge-fill fs-1 mb-2"></i>
+                <h2 class="counter" data-target="{{ total_teachers }}">0</h2>
+                <p class="text-light">Verified Teachers</p>
+                <div class="progress mt-2" style="height:6px;">
+                    <div class="progress-bar bg-light" role="progressbar" style="width: {{ teachers_percentage }}%;" aria-valuenow="{{ teachers_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments Booked -->
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100 stat-card bg-gradient-info text-white">
+            <div class="card-body">
+                <i class="bi bi-calendar-check-fill fs-1 mb-2"></i>
+                <h2 class="counter" data-target="{{ total_appointments }}">0</h2>
+                <p class="text-light">Appointments Booked</p>
+                <div class="progress mt-2" style="height:6px;">
+                    <div class="progress-bar bg-light" role="progressbar" style="width: {{ appointments_percentage }}%;" aria-valuenow="{{ appointments_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100 stat-card bg-gradient-warning text-white">
+            <div class="card-body">
+                <i class="bi bi-clock-history fs-1 mb-2"></i>
+                <h2 class="counter" data-target="{{ upcoming_appointments }}">0</h2>
+                <p class="text-light">Upcoming Appointments</p>
+                <div class="progress mt-2" style="height:6px;">
+                    <div class="progress-bar bg-light" role="progressbar" style="width: {{ upcoming_percentage }}%;" aria-valuenow="{{ upcoming_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Counter Animation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const counters = document.querySelectorAll('.counter');
+    counters.forEach(counter => {
+        const updateCount = () => {
+            const target = +counter.getAttribute('data-target');
+            const count = +counter.innerText;
+            const speed = 200; // higher number = slower
+            const increment = Math.ceil(target / speed);
+
+            if(count < target) {
+                counter.innerText = count + increment;
+                setTimeout(updateCount, 15);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    });
+});
+</script>
+
+<style>
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+.bg-gradient-primary { background: linear-gradient(135deg, #4e73df, #224abe); }
+.bg-gradient-success { background: linear-gradient(135deg, #1cc88a, #17a673); }
+.bg-gradient-info { background: linear-gradient(135deg, #36b9cc, #2c9faf); }
+.bg-gradient-warning { background: linear-gradient(135deg, #f6c23e, #dda20a); }
+</style>
+
+
+<!-- ================= FEATURES ================= -->
+<section class="row text-center mb-5 g-4 features-section">
+    <!-- Feature 1: Easy Booking -->
+    <div class="col-md-4">
+        <div class="feature-card p-4 rounded shadow-sm h-100">
+            <div class="icon-circle bg-primary mb-3">
+                <i class="bi bi-calendar-check fs-2 text-white"></i>
+            </div>
+            <h4>📅 Easy Booking</h4>
+            <p class="text-muted">
+                Book teacher appointments in seconds.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature 2: Availability Control -->
+    <div class="col-md-4">
+        <div class="feature-card p-4 rounded shadow-sm h-100">
+            <div class="icon-circle bg-success mb-3">
+                <i class="bi bi-clock fs-2 text-white"></i>
+            </div>
+            <h4>🕒 Availability Control</h4>
+            <p class="text-muted">
+                Teachers manage time slots easily.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature 3: Secure System -->
+    <div class="col-md-4">
+        <div class="feature-card p-4 rounded shadow-sm h-100">
+            <div class="icon-circle bg-warning mb-3">
+                <i class="bi bi-shield-lock fs-2 text-white"></i>
+            </div>
+            <h4>🔐 Secure System</h4>
+            <p class="text-muted">
+                Role-based authentication & permissions.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature 4: Notifications -->
+    <div class="col-md-4">
+        <div class="feature-card p-4 rounded shadow-sm h-100">
+            <div class="icon-circle bg-info mb-3">
+                <i class="bi bi-bell fs-2 text-white"></i>
+            </div>
+            <h4>🔔 Notifications</h4>
+            <p class="text-muted">
+                Get alerts for upcoming appointments.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature 5: Analytics -->
+    <div class="col-md-4">
+        <div class="feature-card p-4 rounded shadow-sm h-100">
+            <div class="icon-circle bg-danger mb-3">
+                <i class="bi bi-bar-chart fs-2 text-white"></i>
+            </div>
+            <h4>📊 Analytics</h4>
+            <p class="text-muted">
+                Track your booking trends & history.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feature 6: Reports -->
+    <div class="col-md-4">
+        <div class="feature-card p-4 rounded shadow-sm h-100">
+            <div class="icon-circle bg-secondary mb-3">
+                <i class="bi bi-file-earmark-text fs-2 text-white"></i>
+            </div>
+            <h4>📝 Reports</h4>
+            <p class="text-muted">
+                Generate appointment & performance reports.
+            </p>
+        </div>
+    </div>
+</section>
+
+<style>
+.features-section .feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    cursor: pointer;
+}
+
+.features-section .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.icon-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+.bg-primary { background: #4e73df; }
+.bg-success { background: #1cc88a; }
+.bg-warning { background: #f6c23e; }
+.bg-info { background: #36b9cc; }
+.bg-danger { background: #e74a3b; }
+.bg-secondary { background: #858796; }
+
+@media (max-width: 768px) {
+    .features-section .feature-card { margin-bottom: 20px; }
+}
+</style>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="mb-5 how-it-works-section">
+    <h3 class="text-center mb-4">⚙️ How It Works</h3>
+
+    <div class="row text-center g-4">
+        <!-- Step 1 -->
+        <div class="col-md-3">
+            <div class="step-card p-4 rounded shadow-sm h-100">
+                <div class="step-icon bg-primary mb-3">1️⃣</div>
+                <h4>Register</h4>
+                <p class="text-muted">Create a student or teacher account.</p>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="col-md-3">
+            <div class="step-card p-4 rounded shadow-sm h-100">
+                <div class="step-icon bg-success mb-3">2️⃣</div>
+                <h4>Choose Teacher</h4>
+                <p class="text-muted">Browse available teachers.</p>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="col-md-3">
+            <div class="step-card p-4 rounded shadow-sm h-100">
+                <div class="step-icon bg-warning mb-3">3️⃣</div>
+                <h4>Book Slot</h4>
+                <p class="text-muted">Select preferred date & time.</p>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="col-md-3">
+            <div class="step-card p-4 rounded shadow-sm h-100">
+                <div class="step-icon bg-danger mb-3">4️⃣</div>
+                <h4>Approval</h4>
+                <p class="text-muted">Teacher approves appointment.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional CTA -->
+    <div class="text-center mt-4">
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg">🚀 Get Started</a>
+    </div>
+</section>
+
+<style>
+.how-it-works-section .step-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    cursor: pointer;
+}
+.how-it-works-section .step-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.step-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin: 0 auto;
+}
+.bg-primary { background: #4e73df; }
+.bg-success { background: #1cc88a; }
+.bg-warning { background: #f6c23e; }
+.bg-danger { background: #e74a3b; }
+
+@media (max-width: 768px) {
+    .step-card { margin-bottom: 20px; }
+}
+</style>
+
+
+<!-- ================= UPCOMING APPOINTMENTS ================= -->
+{% if user.is_authenticated %}
+<section class="mb-5 upcoming-appointments-section">
+    <h3 class="mb-4">📌 Upcoming Appointments</h3>
+
+    {% if upcoming_appointments %}
+    <div class="row g-4">
+        {% for app in upcoming_appointments %}
+        <div class="col-md-6">
+            <div class="appointment-card p-3 shadow-sm rounded d-flex align-items-center justify-content-between">
+                <!-- Teacher Avatar -->
+                <div class="d-flex align-items-center">
+                    {% if app.teacher.profile.profile_image %}
+                        <img src="{{ app.teacher.profile.profile_image.url }}" class="teacher-avatar me-3" alt="Teacher Image">
+                    {% else %}
+                        <img src="{% static 'images/default_avatar.png' %}" class="teacher-avatar me-3" alt="Teacher Image">
+                    {% endif %}
+
+                    <div>
+                        <h5 class="mb-1">{{ app.teacher.user.get_full_name }}</h5>
+                        <p class="mb-0 text-muted">
+                            {{ app.date }} | {{ app.time }} | {{ app.duration }} mins
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Status Badge -->
+                <div class="text-end">
+                    {% if app.status == 'Pending' %}
+                        <span class="badge bg-warning">{{ app.status }}</span>
+                    {% elif app.status == 'Approved' %}
+                        <span class="badge bg-success">{{ app.status }}</span>
+                    {% elif app.status == 'Cancelled' %}
+                        <span class="badge bg-danger">{{ app.status }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ app.status }}</span>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="mt-2">
+                        {% if app.status == 'Pending' %}
+                            <a href="{% url 'cancel_appointment' app.id %}" class="btn btn-sm btn-outline-danger">Cancel</a>
+                            <a href="{% url 'reschedule_appointment' app.id %}" class="btn btn-sm btn-outline-primary">Reschedule</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <div class="text-center py-5">
+            <img src="{% static 'images/no_appointments.png' %}" alt="No Appointments" style="max-width:200px; opacity:0.5;">
+            <p class="text-muted mt-3">You have no upcoming appointments.</p>
+            <a href="{% url 'book' %}" class="btn btn-primary mt-2">📅 Book an Appointment</a>
+        </div>
+    {% endif %}
+</section>
+
+<style>
+.upcoming-appointments-section .appointment-card {
+    background: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.upcoming-appointments-section .appointment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.teacher-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+.appointment-card h5 {
+    font-weight: 600;
+}
+.appointment-card p {
+    font-size: 0.9rem;
+}
+</style>
+{% endif %}
+
+<!-- ================= TEACHER SPOTLIGHT ================= -->
+<section class="mb-5 popular-teachers-section">
+    <h3 class="text-center mb-4">⭐ Popular Teachers</h3>
+
+    <div class="row g-4">
+        {% for teacher in featured_teachers %}
+        <div class="col-md-4">
+            <div class="card teacher-card shadow-sm h-100 text-center p-3">
+                <!-- Teacher Avatar -->
+                {% if teacher.profile.profile_image %}
+                    <img src="{{ teacher.profile.profile_image.url }}" alt="{{ teacher.user.get_full_name }}" class="teacher-avatar mb-3">
+                {% else %}
+                    <img src="{% static 'images/default_avatar.png' %}" alt="Teacher" class="teacher-avatar mb-3">
+                {% endif %}
+
+                <!-- Teacher Info -->
+                <h5>{{ teacher.user.get_full_name }}</h5>
+                <p class="text-muted mb-1">{{ teacher.department }}</p>
+                <p class="text-muted" style="font-size:0.9rem;">{{ teacher.bio|default:"Expert in their field" }}</p>
+
+                <!-- Rating -->
+                <div class="mb-2">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= teacher.avg_rating %}
+                            <i class="bi bi-star-fill text-warning"></i>
+                        {% else %}
+                            <i class="bi bi-star text-warning"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="text-muted">({{ teacher.reviews_count }} reviews)</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div>
+                    <a href="{% url 'book_teacher' teacher.id %}" class="btn btn-sm btn-primary me-1">📅 Book Now</a>
+                    <a href="{% url 'teacher_profile' teacher.id %}" class="btn btn-sm btn-outline-secondary">👤 View Profile</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center text-muted">No teachers available.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<style>
+.popular-teachers-section .teacher-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    border-radius: 12px;
+}
+.popular-teachers-section .teacher-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+.teacher-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+.teacher-card h5 {
+    font-weight: 600;
+}
+.teacher-card p {
+    font-size: 0.9rem;
+}
+</style>
+
+
+
+<!-- ================= ROLE BASED FEATURES ================= -->
+<section class="mb-5 role-features-section">
+    <h3 class="text-center mb-4">👥 Role-Based Features</h3>
+
+    <div class="row g-4">
+        <!-- Students -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 student-card p-4">
+                <h4 class="mb-3">🎓 Students</h4>
+                <ul class="list-unstyled text-muted">
+                    <li>✅ Book appointments</li>
+                    <li>📅 Track appointment status</li>
+                    <li>📜 View history</li>
+                    <li>❌ Cancel requests</li>
+                    <li>🔔 Receive notifications</li>
+                    <li>📊 View analytics</li>
+                </ul>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary mt-3">Go to Dashboard</a>
+            </div>
+        </div>
+
+        <!-- Teachers -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 teacher-card p-4">
+                <h4 class="mb-3">👨‍🏫 Teachers</h4>
+                <ul class="list-unstyled text-muted">
+                    <li>🕒 Manage availability</li>
+                    <li>✅ Approve/reject requests</li>
+                    <li>📅 View schedule</li>
+                    <li>⚖️ Control workload</li>
+                    <li>📊 Access analytics & reports</li>
+                    <li>🔔 Receive notifications</li>
+                </ul>
+                <a href="{% url 'dashboard' %}" class="btn btn-success mt-3">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.role-features-section .card {
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.role-features-section .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+.student-card {
+    background: linear-gradient(135deg, #4e73df, #2e59d9);
+    color: #fff;
+}
+.teacher-card {
+    background: linear-gradient(135deg, #1cc88a, #17a673);
+    color: #fff;
+}
+.role-features-section ul li {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+.role-features-section .btn {
+    border-radius: 25px;
+    font-weight: 500;
+}
+</style>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section class="mb-5 testimonials-section">
+    <h3 class="text-center mb-4">💬 What Users Say</h3>
+
+    <div class="row g-4">
+        <!-- Testimonial 1 -->
+        <div class="col-md-4">
+            <div class="card testimonial-card shadow-sm p-4 h-100 text-center">
+                <div class="testimonial-avatar mb-3">
+                    <img src="{% static 'images/student_avatar.png' %}" alt="Student" class="rounded-circle">
+                </div>
+                <p class="testimonial-text">“Booking teachers is now super easy!”</p>
+                <strong class="testimonial-author">— Student</strong>
+            </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="col-md-4">
+            <div class="card testimonial-card shadow-sm p-4 h-100 text-center">
+                <div class="testimonial-avatar mb-3">
+                    <img src="{% static 'images/teacher_avatar.png' %}" alt="Teacher" class="rounded-circle">
+                </div>
+                <p class="testimonial-text">“Managing my schedule is effortless.”</p>
+                <strong class="testimonial-author">— Teacher</strong>
+            </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="col-md-4">
+            <div class="card testimonial-card shadow-sm p-4 h-100 text-center">
+                <div class="testimonial-avatar mb-3">
+                    <img src="{% static 'images/admin_avatar.png' %}" alt="Admin" class="rounded-circle">
+                </div>
+                <p class="testimonial-text">“Clean, secure, and scalable system.”</p>
+                <strong class="testimonial-author">— Admin</strong>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.testimonials-section .testimonial-card {
+    border-radius: 12px;
+    background: #f9f9f9;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.testimonials-section .testimonial-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+.testimonial-avatar img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 3px solid #ddd;
+}
+.testimonial-text {
+    font-style: italic;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+.testimonial-author {
+    color: #333;
+}
+@media (max-width: 768px) {
+    .testimonial-card { margin-bottom: 20px; }
+}
+</style>
+
+
+<!-- ================= FAQ ================= -->
+<section class="mb-5 faq-section">
+    <h3 class="text-center mb-4">❓ Frequently Asked Questions</h3>
+
+    <div class="accordion" id="faqAccordion">
+        <!-- FAQ 1 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faqHeading1">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
+                    💡 Can students cancel appointments?
+                </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Yes, students can cancel appointments before approval. Once approved, cancellation rules may apply.
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faqHeading2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                    ⏰ How do teachers manage availability?
+                </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Teachers can add, edit, or remove time slots through their dashboard for students to book appointments.
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faqHeading3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+                    🔐 Is the system secure?
+                </button>
+            </h2>
+            <div id="faq3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Yes, the system uses role-based authentication and secure data handling to protect user information.
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="faqHeading4">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+                    📜 Can I view my appointment history?
+                </button>
+            </h2>
+            <div id="faq4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Yes, students can view all past appointments, their status, and teacher feedback in the history section.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.faq-section .accordion-button {
+    font-weight: 500;
+    border-radius: 8px;
+    background: #f5f5f5;
+    color: #333;
+    transition: background 0.3s ease;
+}
+.faq-section .accordion-button:not(.collapsed) {
+    background: #4e73df;
+    color: #fff;
+}
+.faq-section .accordion-body {
+    font-size: 0.95rem;
+    color: #555;
+}
+.faq-section .accordion-item {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+</style>
+
+
+<!-- ================= FINAL CTA ================= -->
+<section class="text-center p-5 cta-section rounded shadow-lg">
+    <h2 class="mb-3">🚀 Ready to Get Started?</h2>
+    <p class="mb-4">Simplify academic scheduling today.</p>
+    <a href="{% url 'register' %}" class="btn btn-light btn-lg cta-btn">
+        Create Account
+    </a>
+</section>
+
+<style>
+.cta-section {
+    background: linear-gradient(135deg, #4e73df, #1cc88a);
+    color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.cta-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+.cta-btn {
+    border-radius: 30px;
+    font-weight: 600;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.cta-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+@media (max-width: 768px) {
+    .cta-section {
+        padding: 3rem 1.5rem;
+    }
+}
+</style>
+
+
+{% endblock %}

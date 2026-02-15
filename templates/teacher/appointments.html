@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="appointment-requests-section p-4">
+    <h2 class="text-center mb-4">📋 Appointment Requests</h2>
+
+    <!-- Search/filter -->
+    <div class="mb-3 d-flex justify-content-between flex-wrap gap-2">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search by student..." style="max-width: 250px;">
+        <div>
+            <a href="{% url 'export_appointments_pdf' %}" class="btn btn-sm btn-danger me-1">📄 Export PDF</a>
+            <a href="{% url 'export_appointments_csv' %}" class="btn btn-sm btn-success">📊 Export CSV</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover shadow-sm rounded">
+            <thead class="table-dark">
+                <tr>
+                    <th>Student</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="appointmentsTable">
+                {% for appointment in appointments %}
+                <tr>
+                    <td title="{{ appointment.notes }}">{{ appointment.student.username }}</td>
+                    <td>{{ appointment.date }}</td>
+                    <td>{{ appointment.time }}</td>
+                    <td>
+                        {% if appointment.status == 'Pending' %}
+                            <span class="badge bg-warning">{{ appointment.status }}</span>
+                        {% elif appointment.status == 'Approved' %}
+                            <span class="badge bg-success">{{ appointment.status }}</span>
+                        {% elif appointment.status == 'Rejected' %}
+                            <span class="badge bg-danger">{{ appointment.status }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ appointment.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if appointment.status == 'Pending' %}
+                        <a href="{% url 'approve_appointment' appointment.id %}" class="btn btn-sm btn-success me-1">✅ Approve</a>
+                        <a href="{% url 'reject_appointment' appointment.id %}" class="btn btn-sm btn-danger">❌ Reject</a>
+                        {% else %}
+                        <span class="text-muted">No actions</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No appointments</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ================= STYLES ================= -->
+<style>
+.appointment-requests-section {
+    padding: 2rem;
+}
+.table thead th {
+    text-align: center;
+}
+.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(0,123,255,0.1);
+}
+.badge {
+    font-size: 0.9rem;
+    padding: 0.4em 0.7em;
+}
+</style>
+
+<!-- ================= SEARCH FILTER ================= -->
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#appointmentsTable tr');
+
+    rows.forEach(row => {
+        const student = row.cells[0].textContent.toLowerCase();
+        if (student.indexOf(filter) > -1) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>👨‍🎓 Student Dashboard</h2>
+    <p>Welcome, <strong>{{ user.username }}</strong>!</p>
+
+    <!-- Profile Card -->
+    <div class="profile-card">
+        {% if user.profile.profile_image %}
+            <img src="{{ user.profile.profile_image.url }}" alt="Profile Image" class="avatar">
+        {% else %}
+            <img src="{% static 'images/default_avatar.png' %}" alt="Profile Image" class="avatar">
+        {% endif %}
+        <p><strong>{{ user.get_full_name }}</strong></p>
+        <p>{{ user.email }}</p>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'book' %}" class="btn btn-primary">📅 Book Appointment</a>
+        <a href="{% url 'history' %}" class="btn btn-secondary">📜 Appointment History</a>
+        <a href="{% url 'profile' %}" class="btn btn-info">👤 Edit Profile</a>
+        <a href="{% url 'logout' %}" class="btn btn-danger">🚪 Logout</a>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>{{ upcoming_appointments_count }}</h3>
+            <p>Upcoming Appointments</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ total_appointments_count }}</h3>
+            <p>Total Appointments</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ pending_requests_count }}</h3>
+            <p>Pending Requests</p>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="notifications">
+        <h3>🔔 Notifications</h3>
+        {% if notifications %}
+            <ul>
+                {% for note in notifications %}
+                    <li>{{ note.message }} <small>{{ note.timestamp|date:"M d, Y H:i" }}</small></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No new notifications.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="recent-activity">
+        <h3>📋 Recent Activity</h3>
+        {% if recent_appointments %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Advisor</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in recent_appointments %}
+                <tr>
+                    <td>{{ appointment.date }}</td>
+                    <td>{{ appointment.time }}</td>
+                    <td>{{ appointment.advisor.get_full_name }}</td>
+                    <td>{{ appointment.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No recent activity.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    padding: 20px;
+    color: #fff;
+    background: #1e1e2f;
+    border-radius: 10px;
+}
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.action-buttons a {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #fff;
+}
+
+.btn-primary { background: #4e73df; }
+.btn-secondary { background: #1cc88a; }
+.btn-info { background: #36b9cc; }
+.btn-danger { background: #e74a3b; }
+
+.stats-grid {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: #2a2a3d;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1;
+    text-align: center;
+}
+
+.notifications, .recent-activity {
+    background: #2a2a3d;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.notifications ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+}
+
+table th {
+    background: #3a3a50;
+}
+</style>
+{% endblock %}

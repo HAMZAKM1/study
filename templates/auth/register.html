@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- ================= REGISTER SECTION ================= -->
+<section class="register-section d-flex align-items-center justify-content-center vh-100" 
+         style="background: url('{% static 'images/hero-bg.jpg' %}') center/cover no-repeat; position: relative;">
+    
+    <!-- Overlay -->
+    <div class="overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index:1;"></div>
+
+    <div class="register-container p-5 rounded shadow-lg bg-light position-relative" style="z-index:2; max-width:400px; width:100%;">
+        <h2 class="text-center mb-4 fw-bold">📝 Register</h2>
+        <p class="text-center text-muted mb-4">Create a new account to start booking appointments</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" id="username" class="form-control" required placeholder="Enter username">
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="email" class="form-control" required placeholder="Enter email">
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3 position-relative">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" id="password" class="form-control" required placeholder="Enter password">
+                <button type="button" class="btn btn-sm btn-outline-secondary show-pass-btn" onclick="togglePassword('password')" 
+                        style="position:absolute; right:10px; top:50%; transform:translateY(-50%);">
+                    👁️
+                </button>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3 position-relative">
+                <label for="password2" class="form-label">Confirm Password</label>
+                <input type="password" name="password2" id="password2" class="form-control" required placeholder="Re-enter password">
+                <button type="button" class="btn btn-sm btn-outline-secondary show-pass-btn" onclick="togglePassword('password2')" 
+                        style="position:absolute; right:10px; top:50%; transform:translateY(-50%);">
+                    👁️
+                </button>
+            </div>
+
+            <!-- Role -->
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select name="role" id="role" class="form-select">
+                    <option value="student">🎓 Student</option>
+                    <option value="teacher">👨‍🏫 Teacher</option>
+                </select>
+            </div>
+
+            <!-- Terms -->
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="terms" required>
+                <label class="form-check-label" for="terms">I agree to the <a href="#">Terms & Conditions</a></label>
+            </div>
+
+            <!-- Submit -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Register</button>
+            </div>
+
+            <!-- Login Link -->
+            <p class="text-center mt-3 text-muted">Already registered? <a href="{% url 'login' %}">Login</a></p>
+        </form>
+    </div>
+</section>
+
+<!-- ================= STYLES ================= -->
+<style>
+.register-section {
+    position: relative;
+    text-align: center;
+}
+.register-container {
+    background: rgba(255,255,255,0.95);
+    border-radius: 12px;
+}
+.register-container h2 {
+    color: #333;
+}
+.show-pass-btn {
+    border-radius: 50%;
+    padding: 2px 8px;
+}
+</style>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+function togglePassword(id) {
+    const input = document.getElementById(id);
+    if (input.type === "password") {
+        input.type = "text";
+    } else {
+        input.type = "password";
+    }
+}
+</script>
+{% endblock %}
