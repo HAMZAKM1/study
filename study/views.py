@@ -24,7 +24,9 @@ from django.http import HttpResponse
 from .models import Appointment
 from django.http import JsonResponse
 from .models import Appointment
-
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
 def register(request):
     if request.method == 'POST':
         role = request.POST['role']
@@ -36,17 +38,6 @@ def register(request):
         return redirect('login')
     return render(request, 'auth/register.html')
 
-
-def user_login(request):
-    if request.method == 'POST':
-        user = authenticate(
-            username=request.POST['username'],
-            password=request.POST['password']
-        )
-        if user:
-            login(request, user)
-            return redirect('dashboard')
-    return render(request, 'auth/login.html')
 
 
 def dashboard(request):
@@ -229,3 +220,25 @@ def profile(request):
     # Example: show logged-in user's info
     user = request.user
     return render(request, 'profile.html', {'user': user})
+
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        remember = request.POST.get('remember_me')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+
+            if not remember:
+                request.session.set_expiry(0)
+
+            messages.success(request, "Login successful!")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Invalid username or password.")
+
+    return render(request, 'study/login.html')

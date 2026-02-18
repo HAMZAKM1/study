@@ -39,6 +39,8 @@ STATICFILES_DIRS = [
 ]
 
 # Application definition
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
